@@ -19,6 +19,7 @@ Get the openshift client binary:
 Running the image:
 ----------------
 ```bash
+curl -L -O https://raw.githubusercontent.com/praveenkumar/minp/refs/heads/main/00-dns.yaml
 podman run --hostname 127.0.0.1.nip.io --detach --rm -it --privileged -v 00-dns.yaml:/etc/microshift/config.d/00-dns.yaml:ro -p 9080:80 -p 9443:443 -p 6443:6443 --name microshift quay.io/praveenkumar/microshift-okd:flannel-amd64
 podman cp microshift:/var/lib/microshift/resources/kubeadmin/127.0.0.1.nip.io/kubeconfig .
 oc.exe --kubeconfig=kubeconfig get pods -A
@@ -37,7 +38,7 @@ myserver   myserver-demo.apps.127.0.0.1.nip.io   True       myserver
 Access the application on host:
 ------------------------------
 ```
-$ curl  myserver-demo.apps.127.0.0.1.nip.io:9080
+$ curl http://myserver-demo.apps.127.0.0.1.nip.io:9080
 hello
 ```
 
