@@ -15,7 +15,7 @@ base_image() {
   cd $repo || { echo "Failed to access repo directory"; return 1; }
 
   # Replace lines that begin with 'FROM registry.ci.openshift.org/ocp'
-  sed -i 's|^FROM registry.ci.openshift.org/ocp/.*|FROM registry.ci.openshift.org/ocp/builder:stream9|' "$dockerfile_path"
+  sed -i 's|^FROM registry.ci.openshift.org/ocp/.*|FROM quay.io/centos/centos:stream9|' "$dockerfile_path"
 
   podman build -t quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9 -f "$dockerfile_path" .
   podman push quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9
