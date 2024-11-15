@@ -21,7 +21,7 @@ base_image() {
   podman push quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9
 
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle router-image repository
@@ -49,7 +49,7 @@ router_image() {
   podman push quay.io/okd-arm/haproxy-router:${OKD_VERSION}
 
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle coredns-image repository
@@ -69,7 +69,7 @@ coredns_image() {
   podman push quay.io/okd-arm/haproxy-router:${OKD_VERSION}
   
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle csi-external-snapshotter-image repository
@@ -96,7 +96,7 @@ csi_external_snapshotter_image() {
   podman push quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION}
 
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle kube-rbac-proxy-image repository
@@ -116,7 +116,7 @@ kube_rbac_proxy_image() {
   podman push quay.io/okd-arm/kube-rbac-proxy:${OKD_VERSION}
   
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle pod-image repository
@@ -125,7 +125,7 @@ pod_image() {
   local dockerfile_path="build/pause/Dockerfile.Rhel"
   local repo=$(basename ${repo_url})
 
-  #git clone --branch "$BRANCH" --single-branch "$repo_url"
+  git clone --branch "$BRANCH" --single-branch "$repo_url"
   cd $repo || { echo "Failed to access repo directory"; return 1; }
 
   # Apply the sed commands for the pod Dockerfile
@@ -136,7 +136,7 @@ pod_image() {
   podman push quay.io/okd-arm/pod:${OKD_VERSION}
 
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle cli-image repository
@@ -156,7 +156,7 @@ cli_image() {
   podman push quay.io/okd-arm/cli:${OKD_VERSION}
 
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Function to handle service-ca-operator-image repository
@@ -176,7 +176,7 @@ service_ca_operator_image() {
   podman push quay.io/okd-arm/service-ca-operator:${OKD_VERSION}
 
   cd ..
-  rm $repo
+  rm -fr $repo
 }
 
 # Main function to run all the image update functions
