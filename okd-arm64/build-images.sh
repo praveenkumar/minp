@@ -52,6 +52,28 @@ router_image() {
   rm -fr $repo
 }
 
+# Function to handle kube-proxy repository
+kube_proxy_image() {
+  local repo_url="https://github.com/openshift/sdn"
+  local dockerfile_path="images/kube-proxy/Dockerfile.rhel"
+  local repo=$(basename ${repo_url})
+
+  git clone --branch "$BRANCH" --single-branch "$repo_url"
+  cd $repo || { echo "Failed to access repo directory"; return 1; }
+
+  # Apply sed commands for both Dockerfiles in router repo
+  sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_path"
+  sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
+  sed -i 's|yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS|yum --disablerepo=rt install -y --setopt=tsflags=nodocs $INSTALL_PKGS|' "$dockerfile_path"
+
+  podman build -t quay.io/okd-arm/kube-proxy:${OKD_VERSION} -f "$dockerfile_path" .
+  podman push quay.io/okd-arm/kube-proxy:${OKD_VERSION}
+
+  cd ..
+  rm -fr $repo
+}
+
+
 # Function to handle coredns-image repository
 coredns_image() {
   local repo_url="https://github.com/openshift/coredns"
@@ -186,6 +208,7 @@ create_new_okd_release() {
        --keep-manifest-list \
        cli=quay.io/okd-arm/cli:${OKD_VERSION} \
 	haproxy-router=quay.io/okd-arm/haproxy-router:${OKD_VERSION} \
+	kube-proxy=quay.io/okd-arm/kube-proxy:${OKD_VERSION} \
 	coredns=quay.io/okd-arm/coredns:${OKD_VERSION} \
        csi-snapshot-controller=quay.io/okd-arm/csi-snapshot-controller:${OKD_VERSION} \
        csi-snapshot-validation-webhook=quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION} \
@@ -199,6 +222,7 @@ create_new_okd_release() {
 update_images() {
   base_image
   router_image
+  kube_proxy_image
   coredns_image
   csi_external_snapshotter_image
   kube_rbac_proxy_image
