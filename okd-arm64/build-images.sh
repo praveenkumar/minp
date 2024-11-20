@@ -66,7 +66,7 @@ coredns_image() {
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
   podman build -t quay.io/okd-arm/coredns:${OKD_VERSION} -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/haproxy-router:${OKD_VERSION}
+  podman push quay.io/okd-arm/coredns:${OKD_VERSION}
   
   cd ..
   rm -fr $repo
