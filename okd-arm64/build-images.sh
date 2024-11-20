@@ -179,6 +179,22 @@ service_ca_operator_image() {
   rm -fr $repo
 }
 
+# Create a new release of okd using oc
+
+create_new_okd_release() {
+    oc adm release new --from-release registry.ci.openshift.org/origin/release-scos:scos-4.18 \
+       --keep-manifest-list \
+       cli=quay.io/okd-arm/cli:${OKD_VERSION} \
+	haproxy-router=quay.io/okd-arm/haproxy-router:${OKD_VERSION} \
+	coredns=quay.io/okd-arm/coredns:${OKD_VERSION} \
+       csi-snapshot-controller=quay.io/okd-arm/csi-snapshot-controller:${OKD_VERSION} \
+       csi-snapshot-validation-webhook=quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION} \
+	kube-rbac-proxy=quay.io/okd-arm/kube-rbac-proxy:${OKD_VERSION} \
+	pod=quay.io/okd-arm/pod:${OKD_VERSION} \
+	service-ca-operator=quay.io/okd-arm/service-ca-operator:${OKD_VERSION} \
+	--to-image quay.io/okd-arm/okd-arm-release:${OKD_VERSION}
+}
+
 # Main function to run all the image update functions
 update_images() {
   base_image
@@ -207,4 +223,4 @@ OKD_VERSION="$2"
 
 # Run the update process
 update_images
-
+create_new_okd_release
