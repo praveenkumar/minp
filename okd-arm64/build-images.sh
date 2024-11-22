@@ -5,6 +5,7 @@ set -exuo pipefail
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
+
 # Function to handle base-image repository
 base_image() {
   local repo_url="https://github.com/openshift/images"
@@ -17,8 +18,8 @@ base_image() {
   # Replace lines that begin with 'FROM registry.ci.openshift.org/ocp'
   sed -i 's|^FROM registry.ci.openshift.org/ocp/.*|FROM quay.io/centos/centos:stream9|' "$dockerfile_path"
 
-  podman build -t quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9 -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9
+  podman build -t "${images[base]}" -f "$dockerfile_path" .
+  podman push "${images[base]}"
 
   cd ..
   rm -fr $repo
@@ -38,15 +39,15 @@ router_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_base_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_base_path"
   
-  podman build -t quay.io/okd-arm/haproxy-router-base:${OKD_VERSION} -f "$dockerfile_base_path" .
-  podman push quay.io/okd-arm/haproxy-router-base:${OKD_VERSION}
+  podman build -t "${images[haproxy-router-base]}" -f "$dockerfile_base_path" .
+  podman push "${images[haproxy-router-base]}"
   
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*|FROM quay.io/okd-arm/haproxy-router-base:${OKD_VERSION}|" "$dockerfile_haproxy_path"
   sed -i "s|haproxy28|https://github.com/praveenkumar/minp/releases/download/v0.0.1/haproxy28-2.8.10-1.rhaos4.17.el9.aarch64.rpm|" "$dockerfile_haproxy_path"
   sed -i 's|yum install -y $INSTALL_PKGS|yum --disablerepo=rt install -y $INSTALL_PKGS|' "$dockerfile_haproxy_path"
 
-  podman build -t quay.io/okd-arm/haproxy-router:${OKD_VERSION} -f "$dockerfile_haproxy_path" .
-  podman push quay.io/okd-arm/haproxy-router:${OKD_VERSION}
+  podman build -t "${images[haproxy-router]}" -f "$dockerfile_haproxy_path" .
+  podman push "${images[haproxy-router]}"
 
   cd ..
   rm -fr $repo
@@ -66,8 +67,8 @@ kube_proxy_image() {
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
   sed -i 's|yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS|yum --disablerepo=rt install -y --setopt=tsflags=nodocs $INSTALL_PKGS|' "$dockerfile_path"
 
-  podman build -t quay.io/okd-arm/kube-proxy:${OKD_VERSION} -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/kube-proxy:${OKD_VERSION}
+  podman build -t "${images[kube-proxy]}" -f "$dockerfile_path" .
+  podman push "${images[kube-proxy]}"
 
   cd ..
   rm -fr $repo
@@ -87,8 +88,8 @@ coredns_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t quay.io/okd-arm/coredns:${OKD_VERSION} -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/coredns:${OKD_VERSION}
+  podman build -t "${images[coredns]}" -f "$dockerfile_path" .
+  podman push "${images[coredns]}"
   
   cd ..
   rm -fr $repo
@@ -108,14 +109,14 @@ csi_external_snapshotter_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_snapshot_controller_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_snapshot_controller_path"
   
-  podman build -t quay.io/okd-arm/csi-snapshot-controller:${OKD_VERSION} -f "$dockerfile_snapshot_controller_path" .
-  podman push quay.io/okd-arm/csi-snapshot-controller:${OKD_VERSION}
+  podman build -t "${images[csi-snapshot-controller]}" -f "$dockerfile_snapshot_controller_path" .
+  podman push "${images[csi-snapshot-controller]}"
   
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_webhook_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_webhook_path"
 
-  podman build -t quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION} -f "$dockerfile_webhook_path" .
-  podman push quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION}
+  podman build -t "${images[csi-snapshot-validation-webhook]}" -f "$dockerfile_webhook_path" .
+  podman push "${images[csi-snapshot-validation-webhook]}"
 
   cd ..
   rm -fr $repo
@@ -134,8 +135,8 @@ kube_rbac_proxy_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t quay.io/okd-arm/kube-rbac-proxy:${OKD_VERSION} -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/kube-rbac-proxy:${OKD_VERSION}
+  podman build -t "${images[kube-rbac-proxy]}" -f "$dockerfile_path" .
+  podman push "${images[kube-rbac-proxy]}"
   
   cd ..
   rm -fr $repo
@@ -154,8 +155,8 @@ pod_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  pushd build/pause && podman build -t quay.io/okd-arm/pod:${OKD_VERSION} -f $(basename "$dockerfile_path") . &&  popd
-  podman push quay.io/okd-arm/pod:${OKD_VERSION}
+  pushd build/pause && podman build -t "${images[pod]}" -f $(basename "$dockerfile_path") . &&  popd
+  podman push "${images[pod]}"
 
   cd ..
   rm -fr $repo
@@ -174,8 +175,8 @@ cli_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t quay.io/okd-arm/cli:${OKD_VERSION} -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/cli:${OKD_VERSION}
+  podman build -t "${images[cli]}" -f "$dockerfile_path" .
+  podman push "${images[cli]}"
 
   cd ..
   rm -fr $repo
@@ -194,27 +195,34 @@ service_ca_operator_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/ocp/builder:rhel-9-golang-1.22-builder-multi-openshift-4.18 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t quay.io/okd-arm/service-ca-operator:${OKD_VERSION} -f "$dockerfile_path" .
-  podman push quay.io/okd-arm/service-ca-operator:${OKD_VERSION}
+  podman build -t "${images[service-ca-operator]}" -f "$dockerfile_path" .
+  podman push "${images[service-ca-operator]}"
 
   cd ..
   rm -fr $repo
 }
 
-# Create a new release of okd using oc
+# Use image sha256 instead tags
+update_image_tag_to_sha() {
+    for key in "${!images[@]}"; do
+      image_with_sha_hash=$(skopeo inspect "{{.Name}}@{{.Digest}}" "${images[$key]}")
+      images[$key]=${image_with_sha_hash}
+    done
+}
 
+# Create a new release of okd using oc
 create_new_okd_release() {
     oc adm release new --from-release registry.ci.openshift.org/origin/release-scos:scos-4.18 \
        --keep-manifest-list \
-       cli=quay.io/okd-arm/cli:${OKD_VERSION} \
-	haproxy-router=quay.io/okd-arm/haproxy-router:${OKD_VERSION} \
-	kube-proxy=quay.io/okd-arm/kube-proxy:${OKD_VERSION} \
-	coredns=quay.io/okd-arm/coredns:${OKD_VERSION} \
-       csi-snapshot-controller=quay.io/okd-arm/csi-snapshot-controller:${OKD_VERSION} \
-       csi-snapshot-validation-webhook=quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION} \
-	kube-rbac-proxy=quay.io/okd-arm/kube-rbac-proxy:${OKD_VERSION} \
-	pod=quay.io/okd-arm/pod:${OKD_VERSION} \
-	service-ca-operator=quay.io/okd-arm/service-ca-operator:${OKD_VERSION} \
+       cli="${images[cli]}" \
+	haproxy-router="${images[haproxy-router]}" \
+	kube-proxy="${images[kube-proxy]}" \
+	coredns="${images[coredns]}" \
+       csi-snapshot-controller="${images[csi-snapshot-controller]}" \
+       csi-snapshot-validation-webhook="${images[csi-snapshot-validation-webhook]}" \
+	kube-rbac-proxy="${images[kube-rbac-proxy]}" \
+	pod="${images[pod]}" \
+	service-ca-operator="${images[service-ca-operator]}" \
 	--to-image quay.io/okd-arm/okd-arm-release:${OKD_VERSION}
 }
 
@@ -245,6 +253,25 @@ fi
 BRANCH="$1"
 OKD_VERSION="$2"
 
+# Declare an associative array
+declare -A images
+
+# Populate the array with key-value pairs
+images=(
+    [base]="quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9"
+    [cli]="quay.io/okd-arm/cli:${OKD_VERSION}"
+    [haproxy-router-base]="quay.io/okd-arm/haproxy-router-base:${OKD_VERSION}"
+    [haproxy-router]="quay.io/okd-arm/haproxy-router:${OKD_VERSION}"
+    [kube-proxy]="quay.io/okd-arm/kube-proxy:${OKD_VERSION}"
+    [coredns]="quay.io/okd-arm/coredns:${OKD_VERSION}"
+    [csi-snapshot-controller]="quay.io/okd-arm/csi-snapshot-controller:${OKD_VERSION}"
+    [csi-snapshot-validation-webhook]="quay.io/okd-arm/csi-snapshot-validation-webhook:${OKD_VERSION}"
+    [kube-rbac-proxy]="quay.io/okd-arm/kube-rbac-proxy:${OKD_VERSION}"
+    [pod]="quay.io/okd-arm/pod:${OKD_VERSION}"
+    [service-ca-operator]="quay.io/okd-arm/service-ca-operator:${OKD_VERSION}"
+)
+
 # Run the update process
 update_images
+update_image_tag_to_sha
 create_new_okd_release
