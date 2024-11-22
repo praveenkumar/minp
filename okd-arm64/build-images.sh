@@ -205,7 +205,7 @@ service_ca_operator_image() {
 # Use image sha256 instead tags
 update_image_tag_to_sha() {
     for key in "${!images[@]}"; do
-      image_with_sha_hash=$(skopeo inspect "{{.Name}}@{{.Digest}}" "${images[$key]}")
+      image_with_sha_hash=$(skopeo inspect --format "{{.Name}}@{{.Digest}}" docker://"${images[$key]}")
       images[$key]=${image_with_sha_hash}
     done
 }
