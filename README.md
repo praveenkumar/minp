@@ -25,6 +25,17 @@ This is going to mounted on the container
 curl -L -O https://raw.githubusercontent.com/praveenkumar/minp/refs/heads/main/00-dns.yaml
 ```
 
+Get the storage config:
+----------------------
+
+This is going to mounted on the container to share the image store from host to container.
+This config file is taken from https://github.com/containers/storage/blob/main/storage.conf and
+added the info about `additionalimagestores` option.
+
+```bash
+curl -L -O https://raw.githubusercontent.com/praveenkumar/minp/refs/heads/main/storage.conf
+```
+
 Running the image:
 ----------------
 
