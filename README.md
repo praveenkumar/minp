@@ -1,6 +1,14 @@
 Microshift in Podman (minp)
 ==========================
 
+Make sure you are using rootful mode instead of rootless for this. (Default is `podman-machine-default-root`)
+```
+$ podman system connection ls
+Name                         URI                                                         Identity                                                       Default     ReadWrite
+podman-machine-default       ssh://core@127.0.0.1:61859/run/user/501/podman/podman.sock  /Users/prkumar/.local/share/containers/podman/machine/machine  false       true
+podman-machine-default-root  ssh://root@127.0.0.1:61859/run/podman/podman.sock           /Users/prkumar/.local/share/containers/podman/machine/machine  true        true
+```
+
 Note: This is not for production use.
 
 In windows on wsl environment make sure you have cgroupsv2 enabled which is not the case by default 
