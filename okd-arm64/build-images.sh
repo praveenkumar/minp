@@ -18,7 +18,7 @@ base_image() {
   # Replace lines that begin with 'FROM registry.ci.openshift.org/ocp'
   sed -i 's|^FROM registry.ci.openshift.org/ocp/.*|FROM quay.io/centos/centos:stream9|' "$dockerfile_path"
 
-  podman build -t "${images[base]}" -f "$dockerfile_path" .
+  podman build --platform linux/arm64 -t "${images[base]}" -f "$dockerfile_path" .
   podman push "${images[base]}"
 
   cd ..
@@ -39,14 +39,14 @@ router_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_base_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_base_path"
   
-  podman build -t "${images[haproxy-router-base]}" -f "$dockerfile_base_path" .
+  podman build --platform linux/arm64 -t "${images[haproxy-router-base]}" -f "$dockerfile_base_path" .
   podman push "${images[haproxy-router-base]}"
   
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*|FROM quay.io/okd-arm/haproxy-router-base:${OKD_VERSION}|" "$dockerfile_haproxy_path"
   sed -i "s|haproxy28|https://github.com/praveenkumar/minp/releases/download/v0.0.1/haproxy28-2.8.10-1.rhaos4.17.el9.aarch64.rpm|" "$dockerfile_haproxy_path"
   sed -i 's|yum install -y $INSTALL_PKGS|yum --disablerepo=rt install -y $INSTALL_PKGS|' "$dockerfile_haproxy_path"
 
-  podman build -t "${images[haproxy-router]}" -f "$dockerfile_haproxy_path" .
+  podman build --platform linux/arm64 -t "${images[haproxy-router]}" -f "$dockerfile_haproxy_path" .
   podman push "${images[haproxy-router]}"
 
   cd ..
@@ -67,7 +67,7 @@ kube_proxy_image() {
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
   sed -i 's|yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS|yum --disablerepo=rt install -y --setopt=tsflags=nodocs $INSTALL_PKGS|' "$dockerfile_path"
 
-  podman build -t "${images[kube-proxy]}" -f "$dockerfile_path" .
+  podman build --platform linux/arm64 -t "${images[kube-proxy]}" -f "$dockerfile_path" .
   podman push "${images[kube-proxy]}"
 
   cd ..
@@ -88,7 +88,7 @@ coredns_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t "${images[coredns]}" -f "$dockerfile_path" .
+  podman build --platform linux/arm64 -t "${images[coredns]}" -f "$dockerfile_path" .
   podman push "${images[coredns]}"
   
   cd ..
@@ -109,13 +109,13 @@ csi_external_snapshotter_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_snapshot_controller_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_snapshot_controller_path"
   
-  podman build -t "${images[csi-snapshot-controller]}" -f "$dockerfile_snapshot_controller_path" .
+  podman build --platform linux/arm64 -t "${images[csi-snapshot-controller]}" -f "$dockerfile_snapshot_controller_path" .
   podman push "${images[csi-snapshot-controller]}"
   
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_webhook_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_webhook_path"
 
-  podman build -t "${images[csi-snapshot-validation-webhook]}" -f "$dockerfile_webhook_path" .
+  podman build --platform linux/arm64 -t "${images[csi-snapshot-validation-webhook]}" -f "$dockerfile_webhook_path" .
   podman push "${images[csi-snapshot-validation-webhook]}"
 
   cd ..
@@ -135,7 +135,7 @@ kube_rbac_proxy_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t "${images[kube-rbac-proxy]}" -f "$dockerfile_path" .
+  podman build --platform linux/arm64 -t "${images[kube-rbac-proxy]}" -f "$dockerfile_path" .
   podman push "${images[kube-rbac-proxy]}"
   
   cd ..
@@ -155,7 +155,7 @@ pod_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  pushd build/pause && podman build -t "${images[pod]}" -f $(basename "$dockerfile_path") . &&  popd
+  pushd build/pause && podman build --platform linux/arm64 -t "${images[pod]}" -f $(basename "$dockerfile_path") . &&  popd
   podman push "${images[pod]}"
 
   cd ..
@@ -175,7 +175,7 @@ cli_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t "${images[cli]}" -f "$dockerfile_path" .
+  podman build --platform linux/arm64 -t "${images[cli]}" -f "$dockerfile_path" .
   podman push "${images[cli]}"
 
   cd ..
@@ -195,7 +195,7 @@ service_ca_operator_image() {
   sed -i 's|^FROM registry.ci.openshift.org/ocp/builder.*|FROM registry.ci.openshift.org/openshift/release:rhel-9-release-golang-1.22-openshift-4.19 AS builder|' "$dockerfile_path"
   sed -i "s|^FROM registry.ci.openshift.org/ocp/.*:base-rhel9|FROM quay.io/okd-arm/scos-${OKD_VERSION}:base-stream9|" "$dockerfile_path"
 
-  podman build -t "${images[service-ca-operator]}" -f "$dockerfile_path" .
+  podman build --platform linux/arm64 -t "${images[service-ca-operator]}" -f "$dockerfile_path" .
   podman push "${images[service-ca-operator]}"
 
   cd ..
