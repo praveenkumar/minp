@@ -5,6 +5,28 @@ set -exuo pipefail
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
+OC=${OC:-oc}
+SKOPEO=${SKOPEO:-skopeo}
+PODMAN=${PODMAN:-podman}
+
+check_dependency() {
+  if ! which ${OC}; then
+     echo "You need to install oc from https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/"
+     exit 1
+  fi
+  if ! which ${SKOPEO}; then
+     echo "you need to install skopeo https://github.com/containers/skopeo"
+     exit 1
+  fi
+  if ! which ${PODMAN}; then
+     echo "you need to install podman https://github.com/containers/podman"
+     exit 1
+  fi
+}
+
+login_to_registry() {
+  podman login -u ${USERNAME} -u ${PASSWORD} quay.io
+}
 
 # Function to handle base-image repository
 base_image() {
@@ -270,6 +292,10 @@ images=(
     [pod]="quay.io/okd-arm/pod:${OKD_VERSION}"
     [service-ca-operator]="quay.io/okd-arm/service-ca-operator:${OKD_VERSION}"
 )
+
+# check the install process
+check_dependency
+login_to_registry
 
 # Run the update process
 update_images
