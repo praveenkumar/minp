@@ -1,0 +1,53 @@
+name: Build the okd image for arm64
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  setup-tools:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Podman, OpenShift CLI, and Skopeo
+      run: |
+        echo "Installing Podman"
+        sudo apt-get update
+        sudo apt-get install -y podman
+
+        echo "Installing OpenShift CLI"
+        curl -LO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz"
+        tar -xvf openshift-client-linux.tar.gz
+        sudo mv oc /usr/local/bin/
+        sudo mv kubectl /usr/local/bin/
+        rm -f openshift-client-linux.tar.gz
+
+        echo "Installing Skopeo"
+        sudo apt-get install -y skopeo
+
+    - name: Remove unwanted stuff to free up disk image
+      run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          sudo docker image prune --all --force
+
+          sudo swapoff -a
+          sudo rm -f /mnt/swapfile
+
+
+    - name: Verify installations
+      run: |
+        echo "Verifying Podman"
+        podman --version
+
+        echo "Verifying OpenShift CLI"
+        oc version --client
+
+        echo "Verifying Skopeo"
+        skopeo --version
