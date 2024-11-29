@@ -286,6 +286,12 @@ images=(
 check_dependency
 login_to_registry
 
+# check if image already exist
+if skopeo inspect --format "Digest: {{.Digest}}" docker://quay.io/okd-arm/okd-arm-release:${OKD_VERSION}; then
+   echo "image quay.io/okd-arm/okd-arm-release:${OKD_VERSION} already exist"
+   exit 0
+fi
+
 # Run the update process
 update_images
 update_image_tag_to_sha
