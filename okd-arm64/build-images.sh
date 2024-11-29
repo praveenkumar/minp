@@ -8,6 +8,9 @@ export LANG=C.UTF-8
 OC=${OC:-oc}
 SKOPEO=${SKOPEO:-skopeo}
 PODMAN=${PODMAN:-podman}
+BRANCH=${BRANCH:-release-4.18}
+# Get the version from https://amd64.origin.releases.ci.openshift.org/
+OKD_VERSION=${OKD_VERSION:-4.18.0-0.okd-scos-2024-11-27-190430}
 
 check_dependency() {
   if ! which ${OC}; then
@@ -25,7 +28,7 @@ check_dependency() {
 }
 
 login_to_registry() {
-  podman login -u ${USERNAME} -u ${PASSWORD} quay.io
+  podman login -u ${USERNAME} -p ${PASSWORD} quay.io
 }
 
 # Function to handle base-image repository
@@ -261,20 +264,6 @@ update_images() {
   service_ca_operator_image
 }
 
-# Check if branch and version argument is provided
-if [ -z "$1" ]; then
-  echo "Error: Branch argument is missing"
-  exit 1
-fi
-
-if [ -z "$2" ]; then
-  echo "Error: VERSION argument is missing"
-  exit 1
-fi
-
-BRANCH="$1"
-OKD_VERSION="$2"
-
 # Declare an associative array
 declare -A images
 
@@ -296,6 +285,12 @@ images=(
 # check the install process
 check_dependency
 login_to_registry
+
+# check if image already exist
+if skopeo inspect --format "Digest: {{.Digest}}" docker://quay.io/okd-arm/okd-arm-release:${OKD_VERSION}; then
+   echo "image quay.io/okd-arm/okd-arm-release:${OKD_VERSION} already exist"
+   exit 0
+fi
 
 # Run the update process
 update_images
