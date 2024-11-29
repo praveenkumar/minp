@@ -8,6 +8,9 @@ export LANG=C.UTF-8
 OC=${OC:-oc}
 SKOPEO=${SKOPEO:-skopeo}
 PODMAN=${PODMAN:-podman}
+BRANCH=${BRANCH:-release-4.18}
+# Get the version from https://amd64.origin.releases.ci.openshift.org/
+OKD_VERSION=${OKD_VERSION:-4.18.0-0.okd-scos-2024-11-27-190430}
 
 check_dependency() {
   if ! which ${OC}; then
@@ -260,20 +263,6 @@ update_images() {
   cli_image
   service_ca_operator_image
 }
-
-# Check if branch and version argument is provided
-if [ -z "$1" ]; then
-  echo "Error: Branch argument is missing"
-  exit 1
-fi
-
-if [ -z "$2" ]; then
-  echo "Error: VERSION argument is missing"
-  exit 1
-fi
-
-BRANCH="$1"
-OKD_VERSION="$2"
 
 # Declare an associative array
 declare -A images
