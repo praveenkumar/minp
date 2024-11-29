@@ -28,7 +28,7 @@ check_dependency() {
 }
 
 login_to_registry() {
-  podman login -u ${USERNAME} -u ${PASSWORD} quay.io
+  podman login -u ${USERNAME} -p ${PASSWORD} quay.io
 }
 
 # Function to handle base-image repository
