@@ -8,7 +8,7 @@ on:
 
 jobs:
   setup-tools:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
     - name: Set up Podman, OpenShift CLI, and Skopeo
@@ -18,7 +18,7 @@ jobs:
         sudo apt-get install -y podman
 
         echo "Installing OpenShift CLI"
-        curl -LO "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz"
+        curl -LO "https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable/openshift-client-linux.tar.gz"
         tar -xvf openshift-client-linux.tar.gz
         sudo mv oc /usr/local/bin/
         sudo mv kubectl /usr/local/bin/
