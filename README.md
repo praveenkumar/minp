@@ -15,7 +15,7 @@ In windows on wsl environment make sure you have cgroupsv2 enabled which is not 
  - https://github.com/spurin/wsl-cgroupsv2
  - https://github.com/microsoft/WSL/issues/6662 (more details around cgroups-v1/v2)
 
-Image is created using https://github.com/eslutsky/microshift/blob/main/okd/src/README.md#build-and-run-microshift-upstream-without-subscriptionpull-secret
+Image is created using https://github.com/openshift/microshift/tree/main/okd/src#build-and-run-microshift-upstream-without-subscriptionpull-secret
 
 NOTE: arm64 image is created using hacky way because OKD doesn't provide arm64 payload as of now.
 
