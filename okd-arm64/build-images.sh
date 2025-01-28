@@ -237,7 +237,7 @@ update_image_tag_to_sha() {
 
 # Create a new release of okd using oc
 create_new_okd_release() {
-    oc adm release new --from-release registry.ci.openshift.org/origin/release-scos:scos-4.18 \
+    oc adm release new --from-release registry.ci.openshift.org/origin/release-scos:${OKD_VERSION} \
        --keep-manifest-list \
        cli="${images[cli]}" \
 	haproxy-router="${images[haproxy-router]}" \
