@@ -66,4 +66,9 @@ jobs:
         pushd okd-arm64
         chmod +x build-images.sh
         ./build-images.sh
+        popd
+    - name: build microshift image and push
+      run: |
+        ./create-microshift-image.sh
+
 
