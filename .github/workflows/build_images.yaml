@@ -65,7 +65,13 @@ jobs:
         ./build-images.sh
         popd
     - name: build microshift image and push
+      id: image
       run: |
         ./create-microshift-image.sh
+    - name: Setup tmate session
+      if: ${{ failure() && steps.image.conclusion == 'failure' }}
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
 
 
