@@ -287,7 +287,7 @@ check_dependency
 login_to_registry
 
 # check if image already exist
-if skopeo inspect --format "Digest: {{.Digest}}" docker://quay.io/okd-arm/okd-arm-release:${OKD_VERSION}; then
+if skopeo --override-os="linux" --override-arch="amd64" inspect --format "Digest: {{.Digest}}" docker://quay.io/okd-arm/okd-arm-release:${OKD_VERSION}; then
    echo "image quay.io/okd-arm/okd-arm-release:${OKD_VERSION} already exist"
    exit 0
 fi
