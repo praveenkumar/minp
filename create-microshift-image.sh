@@ -32,6 +32,9 @@ echo "Building image for architecture: $ARCH using repository: $REPO"
 git clone https://github.com/openshift/microshift
 pushd microshift
 
+# https://github.com/openshift/microshift/pull/4494
+sed -i '/RUN useradd -m -s \/bin\/bash microshift -d \/microshift && \\/!b;n;c\    echo '\''microshift  ALL=(ALL)  NOPASSWD: ALL'\'' >\/etc\/sudoers.d\/microshift \&\& \\\n    chmod 0640 \/etc\/shadow' "${CONTAINERFILE}"
+
 # Build the image
 podman build \
   --build-arg OKD_REPO="$REPO" \
