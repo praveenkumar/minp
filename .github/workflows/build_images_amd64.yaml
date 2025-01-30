@@ -1,4 +1,4 @@
-name: Build the okd image for arm64
+name: Build the microshift image for amd64
 
 on:
   push:
@@ -8,24 +8,14 @@ on:
 
 jobs:
   setup-tools:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Set up Podman, OpenShift CLI, and Skopeo
       run: |
-        echo "Installing Podman"
+        echo "Installing Podman and skopeo"
         sudo apt-get update
-        sudo apt-get install -y podman
-
-        echo "Installing OpenShift CLI"
-        curl -LO "https://mirror.openshift.com/pub/openshift-v4/arm64/clients/ocp/stable/openshift-client-linux.tar.gz"
-        tar -xvf openshift-client-linux.tar.gz
-        sudo mv oc /usr/local/bin/
-        sudo mv kubectl /usr/local/bin/
-        rm -f openshift-client-linux.tar.gz
-
-        echo "Installing Skopeo"
-        sudo apt-get install -y skopeo
+        sudo apt-get install -y podman skopeo
 
     - name: Remove unwanted stuff to free up disk image
       run: |
@@ -45,9 +35,6 @@ jobs:
         echo "Verifying Podman"
         podman --version
 
-        echo "Verifying OpenShift CLI"
-        oc version --client
-
         echo "Verifying Skopeo"
         skopeo --version
 
@@ -55,15 +42,16 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: ${{ github.sha }}
-    - name: run build-image script
+
+    - name: Log in to Quay.io
       env:
         USERNAME: ${{ secrets.USERNAME }}
         PASSWORD: ${{ secrets.PASSWORD }}
-      run: |
-        pushd okd-arm64
-        chmod +x build-images.sh
-        ./build-images.sh
-        popd
+      uses: redhat-actions/podman-login@v1
+      with:
+        username: ${{ env.USERNAME }}
+        password: ${{ env.PASSWORD }}
+        registry: "quay.io"
     - name: build microshift image and push
       id: image
       run: |

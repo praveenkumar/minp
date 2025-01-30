@@ -237,7 +237,7 @@ update_image_tag_to_sha() {
 
 # Create a new release of okd using oc
 create_new_okd_release() {
-    oc adm release new --from-release registry.ci.openshift.org/origin/release-scos:scos-4.18 \
+    oc adm release new --from-release registry.ci.openshift.org/origin/release-scos:${OKD_VERSION} \
        --keep-manifest-list \
        cli="${images[cli]}" \
 	haproxy-router="${images[haproxy-router]}" \
@@ -287,7 +287,7 @@ check_dependency
 login_to_registry
 
 # check if image already exist
-if skopeo inspect --format "Digest: {{.Digest}}" docker://quay.io/okd-arm/okd-arm-release:${OKD_VERSION}; then
+if skopeo --override-os="linux" --override-arch="amd64" inspect --format "Digest: {{.Digest}}" docker://quay.io/okd-arm/okd-arm-release:${OKD_VERSION}; then
    echo "image quay.io/okd-arm/okd-arm-release:${OKD_VERSION} already exist"
    exit 0
 fi
