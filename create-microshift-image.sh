@@ -37,6 +37,7 @@ sed -i '/RUN useradd -m -s \/bin\/bash microshift -d \/microshift && \\/!b;n;c\ 
 
 # Build the image
 podman build \
+  --ulimit nofile=100000:65536
   --build-arg OKD_REPO="$REPO" \
   --build-arg OKD_VERSION_TAG="$VERSION_TAG" \
   --env WITH_FLANNEL=1 \
@@ -51,4 +52,4 @@ podman push "$IMAGE_ARCH_TAG"
 popd
 
 rm -fr microshift
-
+exit 1
