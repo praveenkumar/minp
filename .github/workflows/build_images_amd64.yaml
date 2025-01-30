@@ -1,0 +1,65 @@
+name: Build the microshift image for amd64
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  setup-tools:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Set up Podman, OpenShift CLI, and Skopeo
+      run: |
+        echo "Installing Podman and skopeo"
+        sudo apt-get update
+        sudo apt-get install -y podman skopeo
+
+    - name: Remove unwanted stuff to free up disk image
+      run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+
+          sudo docker image prune --all --force
+
+          sudo swapoff -a
+          sudo rm -f /mnt/swapfile
+
+    - name: Verify installations
+      run: |
+        echo "Verifying Podman"
+        podman --version
+
+        echo "Verifying Skopeo"
+        skopeo --version
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.sha }}
+
+    - name: Log in to Quay.io
+      env:
+        USERNAME: ${{ secrets.USERNAME }}
+        PASSWORD: ${{ secrets.PASSWORD }}
+      uses: redhat-actions/podman-login@v1
+      with:
+        username: ${{ env.USERNAME }}
+        password: ${{ env.PASSWORD }}
+        registry: "quay.io"
+    - name: build microshift image and push
+      id: image
+      run: |
+        ./create-microshift-image.sh
+    - name: Setup tmate session
+      if: ${{ failure() && steps.image.conclusion == 'failure' }}
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
+
+
