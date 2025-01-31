@@ -22,10 +22,16 @@ case "$ARCH" in
 esac
 
 # Variables
-VERSION_TAG="4.18.0-0.okd-scos-2025-01-28-033610"
+VERSION_TAG="4.18.0-0.okd-scos-2025-01-30-153612"
 IMAGE_NAME="quay.io/praveenkumar/microshift-okd"
 IMAGE_ARCH_TAG="${IMAGE_NAME}:${VERSION_TAG}-${ARCH}"
 CONTAINERFILE="okd/src/microshift-okd-multi-build.Containerfile"
+
+# check if image already exist
+if skopeo --override-os="linux" --override-arch="${ARCH}" inspect --format "Digest: {{.Digest}}" docker://${IMAGE_ARCH_TAG}; then
+   echo "${IMAGE_ARCH_TAG} already exist"
+   exit 0
+fi
 
 echo "Building image for architecture: $ARCH using repository: $REPO"
 
@@ -36,7 +42,7 @@ pushd microshift
 sed -i '/RUN useradd -m -s \/bin\/bash microshift -d \/microshift && \\/!b;n;c\    echo '\''microshift  ALL=(ALL)  NOPASSWD: ALL'\'' >\/etc\/sudoers.d\/microshift \&\& \\\n    chmod 0640 \/etc\/shadow' "${CONTAINERFILE}"
 
 # Build the image
-podman build \
+sudo podman build \
   --build-arg OKD_REPO="$REPO" \
   --build-arg OKD_VERSION_TAG="$VERSION_TAG" \
   --env WITH_FLANNEL=1 \
@@ -47,8 +53,7 @@ podman build \
 
 # Push the image
 echo "Pushing image: $IMAGE_ARCH_TAG"
-podman push "$IMAGE_ARCH_TAG"
+sudo podman push "$IMAGE_ARCH_TAG"
 popd
 
 rm -fr microshift
-
