@@ -27,6 +27,12 @@ IMAGE_NAME="quay.io/praveenkumar/microshift-okd"
 IMAGE_ARCH_TAG="${IMAGE_NAME}:${VERSION_TAG}-${ARCH}"
 CONTAINERFILE="okd/src/microshift-okd-multi-build.Containerfile"
 
+# check if image already exist
+if skopeo --override-os="linux" --override-arch="${ARCH}" inspect --format "Digest: {{.Digest}}" docker://${IMAGE_ARCH_TAG}; then
+   echo "${IMAGE_ARCH_TAG} already exist"
+   exit 0
+fi
+
 echo "Building image for architecture: $ARCH using repository: $REPO"
 
 git clone https://github.com/openshift/microshift
