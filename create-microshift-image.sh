@@ -22,7 +22,7 @@ case "$ARCH" in
 esac
 
 # Variables
-VERSION_TAG="4.18.0-0.okd-scos-2025-01-30-153612"
+VERSION_TAG="4.18.0-okd-scos.0"
 IMAGE_NAME="quay.io/praveenkumar/microshift-okd"
 IMAGE_ARCH_TAG="${IMAGE_NAME}:${VERSION_TAG}-${ARCH}"
 CONTAINERFILE="okd/src/microshift-okd-multi-build.Containerfile"
@@ -37,9 +37,6 @@ echo "Building image for architecture: $ARCH using repository: $REPO"
 
 git clone https://github.com/openshift/microshift
 pushd microshift
-
-# https://github.com/openshift/microshift/pull/4494
-sed -i '/RUN useradd -m -s \/bin\/bash microshift -d \/microshift && \\/!b;n;c\    echo '\''microshift  ALL=(ALL)  NOPASSWD: ALL'\'' >\/etc\/sudoers.d\/microshift \&\& \\\n    chmod 0640 \/etc\/shadow' "${CONTAINERFILE}"
 
 # Build the image
 sudo podman build \

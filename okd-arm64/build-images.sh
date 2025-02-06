@@ -10,7 +10,7 @@ SKOPEO=${SKOPEO:-skopeo}
 PODMAN=${PODMAN:-podman}
 BRANCH=${BRANCH:-release-4.18}
 # Get the version from https://amd64.origin.releases.ci.openshift.org/
-OKD_VERSION=${OKD_VERSION:-4.18.0-0.okd-scos-2025-01-30-153612}
+OKD_VERSION=${OKD_VERSION:-4.18.0-okd-scos.0}
 
 check_dependency() {
   if ! which ${OC}; then
