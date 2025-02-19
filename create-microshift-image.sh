@@ -22,7 +22,7 @@ case "$ARCH" in
 esac
 
 # Variables
-VERSION_TAG="4.18.0-okd-scos.0"
+VERSION_TAG="4.18.0-okd-scos.1"
 IMAGE_NAME="quay.io/praveenkumar/microshift-okd"
 IMAGE_ARCH_TAG="${IMAGE_NAME}:${VERSION_TAG}-${ARCH}"
 CONTAINERFILE="okd/src/microshift-okd-multi-build.Containerfile"
