@@ -38,6 +38,10 @@ echo "Building image for architecture: $ARCH using repository: $REPO"
 git clone https://github.com/openshift/microshift
 pushd microshift
 
+echo "Embed storage.conf and dns.conf to $CONTAINERFILE"
+cp ../storage.conf ../00-dns.yaml .
+sed -i '$a COPY storage.conf /etc/containers/storage.conf\nCOPY 00-dns.yaml /etc/microshift/config.d/00-dns.yaml' $CONTAINERFILE
+
 # Build the image
 sudo podman build \
   --build-arg OKD_REPO="$REPO" \
