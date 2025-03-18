@@ -1,3 +1,5 @@
+**Note: This repo was only for POC, Dev work is now migrated to https://github.com/minc-org/minc**
+
 Microshift in Podman (minp)
 ==========================
 
